@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menú de Kenay 🐾</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #FDF6E3 0%, #FAE8D4 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #4A3728;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  .header {
+    text-align: center;
+    padding: 24px 16px 18px;
+    background: linear-gradient(135deg, #6B4423 0%, #8B5A3C 100%);
+    border-radius: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 20px rgba(107, 68, 35, 0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .header h1 {
+    font-style: italic;
+    font-size: 56px;
+    color: #FDF6E3;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  }
+  .header .paw-icon { font-size: 32px; margin: 0 8px; }
+  .header .quote { font-size: 15px; font-style: italic; color: #FAE8D4; padding: 0 12px; line-height: 1.5; }
+
+  .subtitle {
+    text-align: center;
+    font-size: 34px;
+    font-weight: 800;
+    color: #6B4423;
+    margin: 18px 0 14px;
+    letter-spacing: 0.5px;
+  }
+  .subtitle::before { content: "📅 "; }
+
+  /* TABLA CON ANCHOS FIJOS PARA UNIFORMAR RECTÁNGULOS */
+  .menu-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 6px;
+    table-layout: fixed;
+  }
+  /* Columna día = angosta, 5 columnas comida = iguales */
+  .menu-table col.col-day { width: 9%; }
+  .menu-table col.col-meal { width: 18.2%; }
+
+  .menu-table thead th {
+    background: #6B4423;
+    color: #FDF6E3;
+    padding: 8px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .menu-table thead th .hora { display: block; font-size: 14px; font-weight: 800; margin-top: 3px; }
+
+  .day-cell {
+    background: #8B5A3C;
+    color: #FDF6E3;
+    font-weight: 800;
+    font-size: 14px;
+    text-align: center;
+    padding: 6px 3px;
+    border-radius: 10px;
+    vertical-align: middle;
+    line-height: 1.1;
+  }
+
+  /* BOTONES DE COMIDA — TODOS DEL MISMO TAMAÑO */
+  .meal-cell {
+    padding: 0;
+    vertical-align: middle;
+  }
+  .meal-btn {
+    width: 100%;
+    aspect-ratio: 1 / 1;          /* ← Cuadrado perfecto = mismo tamaño en todas */
+    border: none;
+    border-radius: 12px;
+    padding: 6px 4px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    line-height: 1.15;
+    color: #4A3728;
+  }
+  .meal-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.18); }
+  .meal-btn:active { transform: scale(0.96); box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+  .meal-btn .icon { font-size: 26px; }
+  .meal-btn .label { font-size: 11px; text-align: center; line-height: 1.2; font-weight: 700; }
+
+  .btn-pollo   { background: #A8D5BA; }
+  .btn-tilapia { background: #A9D0F5; }
+  .btn-pavo    { background: #F5B7B1; }
+  .btn-clara   { background: #F9E79F; }
+  .btn-yogurt  { background: #D7BDE2; }
+  .btn-seca    { background: #F5CBA7; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(74, 55, 40, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeIn 0.25s ease;
+  }
+  .modal-overlay.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .modal {
+    background: #FDF6E3;
+    border-radius: 20px;
+    max-width: 460px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+  }
+  .modal-header { text-align: center; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 2px dashed #D4A373; }
+  .modal-header .modal-icon { font-size: 44px; display: block; margin-bottom: 6px; }
+  .modal-header h2 { font-size: 22px; color: #6B4423; font-weight: 800; }
+  .modal-section { margin-bottom: 16px; }
+  .modal-section h3 {
+    font-size: 15px;
+    color: #6B4423;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #EAD5B7;
+    font-weight: 700;
+  }
+  .modal-section ul, .modal-section ol { padding-left: 22px; font-size: 14px; line-height: 1.6; color: #4A3728; }
+  .modal-section li { margin-bottom: 5px; }
+
+  .close-btn {
+    position: absolute;
+    top: 12px; right: 14px;
+    background: #6B4423;
+    color: #FDF6E3;
+    border: none;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .close-btn:active { transform: scale(0.9); }
+
+  .footer { text-align: center; margin-top: 18px; font-size: 13px; color: #8B5A3C; padding: 10px; font-style: italic; }
+
+  /* RESPONSIVE — en móvil sigue viéndose bien */
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .header h1 { font-size: 36px; }
+    .header .paw-icon { font-size: 22px; }
+    .subtitle { font-size: 22px; }
+    .menu-table { border-spacing: 3px; }
+    .menu-table thead th { font-size: 9px; padding: 4px 2px; }
+    .menu-table thead th .hora { font-size: 10px; }
+    .day-cell { font-size: 10px; }
+    .meal-btn { border-radius: 8px; padding: 4px 2px; gap: 2px; }
+    .meal-btn .icon { font-size: 18px; }
+    .meal-btn .label { font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1><span class="paw-icon">🐾</span>Menú de Kenay<span class="paw-icon">🐾</span></h1>
+    <p class="quote">"No es un gasto en Kenay, es una inversión en nuestra felicidad"</p>
+  </div>
+
+  <h2 class="subtitle">Calendario Semanal</h2>
+
+  <table class="menu-table">
+    <colgroup>
+      <col class="col-day">
+      <col class="col-meal">
+      <col class="col-meal">
+      <col class="col-meal">
+      <col class="col-meal">
+      <col class="col-meal">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Día</th>
+        <th>C1<span class="hora">8:00 am</span></th>
+        <th>C2<span class="hora">10:30 am</span></th>
+        <th>C3<span class="hora">1:00 pm</span></th>
+        <th>C4<span class="hora">4:30 pm</span></th>
+        <th>C5<span class="hora">8:00 pm</span></th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td class="day-cell">LUN</td>
+        <td class="meal-cell"><button class="meal-btn btn-pollo" onclick="openModal('lun1')"><span class="icon">🐔</span><span class="label">Pollo<br>arroz<br>calabaza</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-clara" onclick="openModal('claraMzn')"><span class="icon">🥚</span><span class="label">Clara<br>manzana</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-tilapia" onclick="openModal('lun5')"><span class="icon">🐟</span><span class="label">Tilapia<br>arroz<br>calabaza</span></button></td>
+      </tr>
+
+      <tr>
+        <td class="day-cell">MAR</td>
+        <td class="meal-cell"><button class="meal-btn btn-tilapia" onclick="openModal('mar1')"><span class="icon">🐟</span><span class="label">Tilapia<br>arroz<br>guatila</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-yogurt" onclick="openModal('yogPera')"><span class="icon">🥛</span><span class="label">Yogurt<br>pera</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-pollo" onclick="openModal('mar5')"><span class="icon">🐔</span><span class="label">Pollo<br>arroz<br>zanahoria</span></button></td>
+      </tr>
+
+      <tr>
+        <td class="day-cell">MIÉ</td>
+        <td class="meal-cell"><button class="meal-btn btn-pavo" onclick="openModal('mie1')"><span class="icon">🦃</span><span class="label">Pavo<br>arroz<br>calabaza</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-clara" onclick="openModal('claraMzn')"><span class="icon">🥚</span><span class="label">Clara<br>manzana</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-tilapia" onclick="openModal('mie5')"><span class="icon">🐟</span><span class="label">Tilapia<br>arroz<br>zanahoria</span></button></td>
+      </tr>
+
+      <tr>
+        <td class="day-cell">JUE</td>
+        <td class="meal-cell"><button class="meal-btn btn-pollo" onclick="openModal('jue1')"><span class="icon">🐔</span><span class="label">Pollo<br>papa<br>guatila</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-yogurt" onclick="openModal('yogMzn')"><span class="icon">🥛</span><span class="label">Yogurt<br>manzana</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-tilapia" onclick="openModal('jue5')"><span class="icon">🐟</span><span class="label">Tilapia<br>papa<br>calabaza</span></button></td>
+      </tr>
+
+      <tr>
+        <td class="day-cell">VIE</td>
+        <td class="meal-cell"><button class="meal-btn btn-tilapia" onclick="openModal('vie1')"><span class="icon">🐟</span><span class="label">Tilapia<br>arroz<br>calabaza</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-clara" onclick="openModal('claraPera')"><span class="icon">🥚</span><span class="label">Clara<br>pera</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-pollo" onclick="openModal('vie5')"><span class="icon">🐔</span><span class="label">Pollo<br>arroz<br>guatila</span></button></td>
+      </tr>
+
+      <tr>
+        <td class="day-cell">SÁB</td>
+        <td class="meal-cell"><button class="meal-btn btn-pavo" onclick="openModal('sab1')"><span class="icon">🦃</span><span class="label">Pavo<br>papa<br>zanahoria</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-yogurt" onclick="openModal('yogMzn')"><span class="icon">🥛</span><span class="label">Yogurt<br>manzana</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-pollo" onclick="openModal('sab5')"><span class="icon">🐔</span><span class="label">Pollo<br>papa<br>calabaza</span></button></td>
+      </tr>
+
+      <tr>
+        <td class="day-cell">DOM</td>
+        <td class="meal-cell"><button class="meal-btn btn-pollo" onclick="openModal('dom1')"><span class="icon">🐔</span><span class="label">Pollo<br>arroz<br>guatila</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-clara" onclick="openModal('claraMzn')"><span class="icon">🥚</span><span class="label">Clara<br>manzana</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-seca" onclick="openModal('seca')"><span class="icon">🥣</span><span class="label">BR<br>Hepatic</span></button></td>
+        <td class="meal-cell"><button class="meal-btn btn-tilapia" onclick="openModal('dom5')"><span class="icon">🐟</span><span class="label">Tilapia<br>arroz<br>zanahoria</span></button></td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <div class="footer">Hecho con 💛 para Kenay</div>
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalContent" onclick="event.stopPropagation()">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  const recetas = {
+    lun1: {
+      icon: "🐔",
+      titulo: "Pollo + arroz + calabaza",
+      tiempos: ["Pollo: 12 min hervido", "Arroz: 20 min", "Calabaza: 10 min al vapor"],
+      cantidades: ["Pollo (pechuga sin piel): 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Calabaza (auyama): 6 g (½ cda)"],
+      pasos: [
+        "Lava la pechuga y córtala en trozos pequeños.",
+        "Hierve el pollo en agua sin sal por 12 minutos.",
+        "En paralelo, cocina el arroz con doble agua (1 taza arroz : 2.5 tazas agua) por 20 min.",
+        "Pela la calabaza, quita las semillas y córtala en cubos. Cocínala al vapor 10 min hasta que esté blanda.",
+        "Desmecha el pollo bien fino y mezcla con el arroz y la calabaza aplastada.",
+        "Sirve tibio (38-40°C). Puedes rociar 1 cdita de caldo de pollo para potenciar aroma."
+      ]
+    },
+    lun5: {
+      icon: "🐟",
+      titulo: "Tilapia + arroz + calabaza",
+      tiempos: ["Tilapia: 10 min al vapor", "Arroz: 20 min", "Calabaza: 10 min al vapor"],
+      cantidades: ["Tilapia (filete sin piel): 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Calabaza: 6 g (½ cda)"],
+      pasos: [
+        "Revisa la tilapia y retira TODAS las espinas cuidadosamente.",
+        "Cocina la tilapia al vapor 10 min sin sal ni condimentos.",
+        "Cocina el arroz con doble agua por 20 min.",
+        "Cocina la calabaza pelada al vapor 10 min.",
+        "Desmenuza la tilapia con tenedor y mezcla con el arroz y la calabaza aplastada.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    mar1: {
+      icon: "🐟",
+      titulo: "Tilapia + arroz + guatila",
+      tiempos: ["Tilapia: 10 min al vapor", "Arroz: 20 min", "Guatila: 12 min al vapor"],
+      cantidades: ["Tilapia: 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Guatila: 6 g (½ cda)"],
+      pasos: [
+        "Pela la guatila (usa guantes para evitar la savia), retira la semilla central y córtala en cubos pequeños.",
+        "Revisa y retira las espinas de la tilapia. Cocínala al vapor 10 min.",
+        "Cocina el arroz con doble agua por 20 min.",
+        "Cocina la guatila al vapor 12 min hasta que esté muy blanda.",
+        "Desmenuza la tilapia y mezcla todo aplastando ligeramente.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    mar5: {
+      icon: "🐔",
+      titulo: "Pollo + arroz + zanahoria",
+      tiempos: ["Pollo: 12 min hervido", "Arroz: 20 min", "Zanahoria: 10 min al vapor"],
+      cantidades: ["Pollo: 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Zanahoria: 6 g (½ cda)"],
+      pasos: [
+        "Lava y corta la pechuga en trozos pequeños.",
+        "Hierve el pollo sin sal por 12 min.",
+        "Cocina el arroz con doble agua por 20 min.",
+        "Pela la zanahoria, córtala en rodajas finas y cocínala al vapor 10 min.",
+        "Desmecha el pollo y mezcla con arroz y zanahoria triturada.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    mie1: {
+      icon: "🦃",
+      titulo: "Pavo + arroz + calabaza",
+      tiempos: ["Pavo: 12 min hervido", "Arroz: 20 min", "Calabaza: 10 min al vapor"],
+      cantidades: ["Pechuga de pavo sin piel: 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Calabaza: 6 g (½ cda)"],
+      pasos: [
+        "Lava la pechuga de pavo y córtala en trozos pequeños.",
+        "Hierve el pavo sin sal por 12 min.",
+        "Cocina el arroz con doble agua por 20 min.",
+        "Cocina la calabaza pelada al vapor 10 min.",
+        "Desmecha el pavo bien fino y mezcla con arroz y calabaza aplastada.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    mie5: {
+      icon: "🐟",
+      titulo: "Tilapia + arroz + zanahoria",
+      tiempos: ["Tilapia: 10 min al vapor", "Arroz: 20 min", "Zanahoria: 10 min al vapor"],
+      cantidades: ["Tilapia: 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Zanahoria: 6 g (½ cda)"],
+      pasos: [
+        "Revisa y retira todas las espinas de la tilapia.",
+        "Cocina la tilapia al vapor 10 min.",
+        "Cocina el arroz con doble agua por 20 min.",
+        "Pela la zanahoria, córtala en rodajas finas y cocínala al vapor 10 min.",
+        "Desmenuza la tilapia y mezcla con arroz y zanahoria triturada.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    jue1: {
+      icon: "🐔",
+      titulo: "Pollo + papa + guatila",
+      tiempos: ["Pollo: 12 min hervido", "Papa: 15 min al vapor", "Guatila: 12 min al vapor"],
+      cantidades: ["Pollo: 10 g (1 cda)", "Papa pastusa: 12 g (1 cda)", "Guatila: 6 g (½ cda)"],
+      pasos: [
+        "Pela la papa y córtala en cubitos pequeños.",
+        "Pela la guatila (con guantes), retira la semilla y córtala en cubos.",
+        "Hierve el pollo sin sal por 12 min.",
+        "Cocina la papa y la guatila al vapor por 15 y 12 min respectivamente.",
+        "Desmecha el pollo y mezcla con papa y guatila aplastadas.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    jue5: {
+      icon: "🐟",
+      titulo: "Tilapia + papa + calabaza",
+      tiempos: ["Tilapia: 10 min al vapor", "Papa: 15 min al vapor", "Calabaza: 10 min al vapor"],
+      cantidades: ["Tilapia: 10 g (1 cda)", "Papa: 12 g (1 cda)", "Calabaza: 6 g (½ cda)"],
+      pasos: [
+        "Retira las espinas de la tilapia con cuidado.",
+        "Pela la papa y córtala en cubitos.",
+        "Pela la calabaza y quita las semillas.",
+        "Cocina la tilapia al vapor 10 min, la papa 15 min y la calabaza 10 min.",
+        "Desmenuza la tilapia y mezcla con papa y calabaza aplastadas.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    vie1: {
+      icon: "🐟",
+      titulo: "Tilapia + arroz + calabaza",
+      tiempos: ["Tilapia: 10 min al vapor", "Arroz: 20 min", "Calabaza: 10 min al vapor"],
+      cantidades: ["Tilapia: 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Calabaza: 6 g (½ cda)"],
+      pasos: [
+        "Retira todas las espinas de la tilapia.",
+        "Cocina la tilapia al vapor 10 min.",
+        "Cocina el arroz con doble agua por 20 min.",
+        "Cocina la calabaza pelada al vapor 10 min.",
+        "Desmenuza la tilapia y mezcla con arroz y calabaza aplastada.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    vie5: {
+      icon: "🐔",
+      titulo: "Pollo + arroz + guatila",
+      tiempos: ["Pollo: 12 min hervido", "Arroz: 20 min", "Guatila: 12 min al vapor"],
+      cantidades: ["Pollo: 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Guatila: 6 g (½ cda)"],
+      pasos: [
+        "Lava y corta la pechuga en trozos pequeños.",
+        "Pela la guatila (con guantes), retira la semilla y córtala en cubos.",
+        "Hierve el pollo sin sal por 12 min.",
+        "Cocina el arroz con doble agua por 20 min.",
+        "Cocina la guatila al vapor 12 min.",
+        "Desmecha el pollo y mezcla con arroz y guatila aplastada.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    sab1: {
+      icon: "🦃",
+      titulo: "Pavo + papa + zanahoria",
+      tiempos: ["Pavo: 12 min hervido", "Papa: 15 min al vapor", "Zanahoria: 10 min al vapor"],
+      cantidades: ["Pavo: 10 g (1 cda)", "Papa: 12 g (1 cda)", "Zanahoria: 6 g (½ cda)"],
+      pasos: [
+        "Lava la pechuga de pavo y córtala en trozos pequeños.",
+        "Pela la papa y córtala en cubitos.",
+        "Pela la zanahoria y córtala en rodajas finas.",
+        "Hierve el pavo sin sal por 12 min.",
+        "Cocina la papa al vapor 15 min y la zanahoria 10 min.",
+        "Desmecha el pavo y mezcla con papa y zanahoria trituradas. Sirve tibio."
+      ]
+    },
+    sab5: {
+      icon: "🐔",
+      titulo: "Pollo + papa + calabaza",
+      tiempos: ["Pollo: 12 min hervido", "Papa: 15 min al vapor", "Calabaza: 10 min al vapor"],
+      cantidades: ["Pollo: 10 g (1 cda)", "Papa: 12 g (1 cda)", "Calabaza: 6 g (½ cda)"],
+      pasos: [
+        "Lava y corta la pechuga en trozos pequeños.",
+        "Pela la papa y córtala en cubitos.",
+        "Pela la calabaza y quita las semillas.",
+        "Hierve el pollo sin sal por 12 min.",
+        "Cocina la papa al vapor 15 min y la calabaza 10 min.",
+        "Desmecha el pollo y mezcla con papa y calabaza aplastadas. Sirve tibio."
+      ]
+    },
+    dom1: {
+      icon: "🐔",
+      titulo: "Pollo + arroz + guatila",
+      tiempos: ["Pollo: 12 min hervido", "Arroz: 20 min", "Guatila: 12 min al vapor"],
+      cantidades: ["Pollo: 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Guatila: 6 g (½ cda)"],
+      pasos: [
+        "Lava y corta la pechuga en trozos pequeños.",
+        "Pela la guatila (con guantes), retira la semilla y córtala en cubos.",
+        "Hierve el pollo sin sal por 12 min.",
+        "Cocina el arroz con doble agua por 20 min.",
+        "Cocina la guatila al vapor 12 min.",
+        "Desmecha el pollo y mezcla con arroz y guatila aplastada. Sirve tibio."
+      ]
+    },
+    dom5: {
+      icon: "🐟",
+      titulo: "Tilapia + arroz + zanahoria",
+      tiempos: ["Tilapia: 10 min al vapor", "Arroz: 20 min", "Zanahoria: 10 min al vapor"],
+      cantidades: ["Tilapia: 10 g (1 cda)", "Arroz blanco: 10 g (1 cda)", "Zanahoria: 6 g (½ cda)"],
+      pasos: [
+        "Retira las espinas de la tilapia con cuidado.",
+        "Cocina la tilapia al vapor 10 min.",
+        "Cocina el arroz con doble agua por 20 min.",
+        "Pela la zanahoria, córtala en rodajas finas y cocínala al vapor 10 min.",
+        "Desmenuza la tilapia y mezcla con arroz y zanahoria triturada.",
+        "Sirve tibio (38-40°C)."
+      ]
+    },
+    claraMzn: {
+      icon: "🥚",
+      titulo: "Clara de huevo + manzana roja",
+      tiempos: ["Clara: 6 min hervida", "Manzana: sin cocción"],
+      cantidades: ["Clara de huevo cocida: 15 g (½ clara)", "Manzana roja pelada: 8 g (¾ cda)"],
+      pasos: [
+        "Hierve el huevo entero durante 6 min.",
+        "Deja enfriar, pélalo y separa la clara (descarta la yema).",
+        "Corta 15 g de clara en cubitos pequeños.",
+        "Pela la manzana roja, retira las semillas y el corazón.",
+        "Corta 8 g en cubitos muy pequeños.",
+        "Mezcla clara y manzana. Sirve a temperatura ambiente."
+      ]
+    },
+    claraPera: {
+      icon: "🥚",
+      titulo: "Clara de huevo + pera",
+      tiempos: ["Clara: 6 min hervida", "Pera: sin cocción"],
+      cantidades: ["Clara de huevo cocida: 15 g (½ clara)", "Pera pelada: 8 g (¾ cda)"],
+      pasos: [
+        "Hierve el huevo entero durante 6 min.",
+        "Deja enfriar, pélalo y separa la clara (descarta la yema).",
+        "Corta 15 g de clara en cubitos pequeños.",
+        "Pela la pera y retira las semillas.",
+        "Corta 8 g en cubitos muy pequeños.",
+        "Mezcla clara y pera. Sirve a temperatura ambiente."
+      ]
+    },
+    yogPera: {
+      icon: "🥛",
+      titulo: "Yogurt griego 0% + pera",
+      tiempos: ["Sin cocción", "Preparación: 2 min"],
+      cantidades: ["Yogurt griego natural 0% sin azúcar: 15 g (1 cda)", "Pera pelada: 8 g (¾ cda)"],
+      pasos: [
+        "Saca el yogurt del refri unos minutos antes (que no esté helado).",
+        "Pela la pera y retira las semillas.",
+        "Corta 8 g en cubitos muy pequeños.",
+        "Sirve el yogurt en el platico y agrega la pera encima.",
+        "Mezcla suavemente y ofrécele."
+      ]
+    },
+    yogMzn: {
+      icon: "🥛",
+      titulo: "Yogurt griego 0% + manzana roja",
+      tiempos: ["Sin cocción", "Preparación: 2 min"],
+      cantidades: ["Yogurt griego natural 0% sin azúcar: 15 g (1 cda)", "Manzana roja pelada: 8 g (¾ cda)"],
+      pasos: [
+        "Saca el yogurt del refri unos minutos antes (que no esté helado).",
+        "Pela la manzana roja, retira semillas y corazón.",
+        "Corta 8 g en cubitos muy pequeños.",
+        "Sirve el yogurt en el platico y agrega la manzana encima.",
+        "Mezcla suavemente y ofrécele."
+      ]
+    },
+    seca: {
+      icon: "🥣",
+      titulo: "BR Vet Hepatic rehidratada",
+      tiempos: ["Reposar: 5-10 min", "Servir tibia (38-40°C)"],
+      cantidades: ["Croquetas BR Vet Hepatic: 10 g (1 cda sopera rasa)", "Caldo de pollo casero tibio sin sal: 2-3 cdas"],
+      pasos: [
+        "Pesa 10 g de croquetas (aprox. 1 cda sopera rasa) en el platico de Kenay.",
+        "Calienta 2-3 cdas de caldo de pollo casero sin sal hasta que esté tibio (38-40°C).",
+        "Vierte el caldo sobre las croquetas cubriéndolas por completo.",
+        "Deja reposar 5-10 min hasta que las croquetas estén blandas.",
+        "Aplasta ligeramente con un tenedor para lograr textura de papilla suave.",
+        "Verifica que esté tibia (no caliente) antes de servir. Este es el truco para despertar el apetito. 🐾"
+      ]
+    }
+  };
+
+  function openModal(id) {
+    const receta = recetas[id];
+    if (!receta) return;
+    const body = document.getElementById("modalBody");
+    body.innerHTML = `
+      <div class="modal-header">
+        <span class="modal-icon">${receta.icon}</span>
+        <h2>${receta.titulo}</h2>
+      </div>
+      <div class="modal-section">
+        <h3>⏱️ Tiempos de cocción</h3>
+        <ul>${receta.tiempos.map(t => `<li>${t}</li>`).join("")}</ul>
+      </div>
+      <div class="modal-section">
+        <h3>📏 Cantidades</h3>
+        <ul>${receta.cantidades.map(c => `<li>${c}</li>`).join("")}</ul>
+      </div>
+      <div class="modal-section">
+        <h3>👨‍🍳 Preparación paso a paso</h3>
+        <ol>${receta.pasos.map(p => `<li>${p}</li>`).join("")}</ol>
+      </div>
+    `;
+    document.getElementById("modalOverlay").classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    document.getElementById("modalOverlay").classList.remove("active");
+    document.body.style.overflow = "auto";
+  }
+
+  function closeModalOutside(e) {
+    if (e.target.id === "modalOverlay") closeModal();
+  }
+</script>
+
+</body>
+</html>
