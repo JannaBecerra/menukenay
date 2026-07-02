@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menú de Kenay 🐾</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #FDF6E3 0%, #FAE8D4 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #4A3728;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  .header {
+    text-align: center;
+    padding: 24px 16px 18px;
+    background: linear-gradient(135deg, #6B4423 0%, #8B5A3C 100%);
+    border-radius: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 20px rgba(107, 68, 35, 0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .header h1 {
+    font-style: italic;
+    font-size: 56px;
+    color: #FDF6E3;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  }
+  .header .paw-icon { font-size: 32px; margin: 0 8px; }
+  .header .quote { font-size: 15px; font-style: italic; color: #FAE8D4; padding: 0 12px; line-height: 1.5; }
+
+  .subtitle {
+    text-align: center;
+    font-size: 34px;
+    font-weight: 800;
+    color: #6B4423;
+    margin: 18px 0 14px;
+    letter-spacing: 0.5px;
+  }
+  .subtitle::before { content: "📅 "; }
+
+  .menu-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 6px;
+    table-layout: fixed;
+  }
+  .menu-table col.col-day { width: 9%; }
+  .menu-table col.col-meal { width: 18.2%; }
+
+  .menu-table thead th {
+    background: #6B4423;
+    color: #FDF6E3;
+    padding: 8px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .menu-table thead th .hora { display: block; font-size: 14px; font-weight: 800; margin-top: 3px; }
+
+  .day-cell {
+    background: #8B5A3C;
+    color: #FDF6E3;
+    font-weight: 800;
+    font-size: 14px;
+    text-align: center;
+    padding: 6px 3px;
+    border-radius: 10px;
+    vertical-align: middle;
+    line-height: 1.1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .day-cell:hover { background: #6B4423; }
+
+  tr.today .day-cell {
+    background: linear-gradient(135deg, #B8860B 0%, #DAA520 100%);
+    box-shadow: 0 0 0 2px #F9E79F, 0 0 12px rgba(218, 165, 32, 0.5);
+  }
+  tr.today .day-cell::after {
+    content: " 📍";
+    font-size: 11px;
+  }
+
+  tr.expanded .collapsed-info { display: none; }
+  tr.expanded .meal-cell { display: table-cell; }
+  tr.collapsed .meal-cell { display: none; }
+  tr.collapsed .collapsed-info { display: table-cell; }
+
+  td.collapsed-info {
+    background: #FAE8D4;
+    color: #6B4423;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  td.collapsed-info:hover { background: #F5CBA7; }
+  td.collapsed-info .dots {
+    letter-spacing: 3px;
+    font-size: 15px;
+    margin: 0 6px;
+    color: #6B4423;
+  }
+  td.collapsed-info .frac {
+    font-weight: 800;
+    color: #4A3728;
+  }
+  td.collapsed-info .expand-hint {
+    font-size: 10px;
+    color: #8B5A3C;
+    margin-left: 6px;
+    font-style: italic;
+  }
+
+  .meal-cell {
+    padding: 0;
+    vertical-align: middle;
+    position: relative;
+  }
+
+  .meal-btn {
+    width: 100%;
+    height: 160px;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 8px 40px 8px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    line-height: 1.1;
+    color: #4A3728;
+    position: relative;
+    overflow: hidden;
+  }
+  .meal-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.18); }
+  .meal-btn:active { transform: scale(0.96); }
+
+  .meal-btn .meal-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    pointer-events: none;
+  }
+  .meal-btn .icon {
+    font-size: 24px;
+    line-height: 1;
+    display: block;
+    flex-shrink: 0;
+  }
+  .meal-btn .label {
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.25;
+    font-weight: 700;
+    padding: 0 2px;
+    word-break: break-word;
+    max-width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+  }
+
+  .meal-btn.done {
+    opacity: 0.65;
+    filter: saturate(0.85);
+  }
+
+  /* ===== CHECK BUTTON — esquina inferior derecha ===== */
+  .check-btn {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    background: rgba(255,255,255,0.9);
+    border: 2px solid #6B4423;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    overflow: hidden;
+  }
+  .check-btn:hover { background: #FAE8D4; }
+  .check-btn:active { transform: scale(0.85); }
+  .meal-btn.done .check-btn {
+    background: #FFFFFF;
+    border-color: #2E7D32;
+  }
+
+  /* ===== NOTE BUTTON — esquina inferior izquierda ===== */
+  .note-btn {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    width: 26px;
+    height: 26px;
+    background: rgba(255,255,255,0.9);
+    border: 2px solid #6B4423;
+    border-radius: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  .note-btn:hover { background: #FAE8D4; }
+  .note-btn:active { transform: scale(0.85); }
+  .meal-btn.has-note .note-btn {
+    background: #F9E79F;
+    border-color: #B8860B;
+  }
+
+  .note-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4A3728;
+    color: #FDF6E3;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;
+  }
+  .note-tooltip.show { display: block; }
+  .note-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #4A3728;
+  }
+
+  .btn-pollo   { background: #A8D5BA; }
+  .btn-tilapia { background: #A9D0F5; }
+  .btn-pavo    { background: #F5B7B1; }
+  .btn-clara   { background: #F9E79F; }
+  .btn-yogurt  { background: #D7BDE2; }
+  .btn-seca    { background: #F5CBA7; }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(74, 55, 40, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeIn 0.25s ease;
+  }
+  .modal-overlay.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .modal {
+    background: #FDF6E3;
+    border-radius: 20px;
+    max-width: 460px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+  }
+  .modal-header { text-align: center; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 2px dashed #D4A373; }
+  .modal-header .modal-icon { font-size: 44px; display: block; margin-bottom: 6px; }
+  .modal-header h2 { font-size: 22px; color: #6B4423; font-weight: 800; }
+  .modal-section { margin-bottom: 16px; }
+  .modal-section h3 {
+    font-size: 15px;
+    color: #6B4423;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #EAD5B7;
+    font-weight: 700;
+  }
+  .modal-section ul, .modal-section ol { padding-left: 22px; font-size: 14px; line-height: 1.6; color: #4A3728; }
+  .modal-section li { margin-bottom: 5px; }
+
+  .close-btn {
+    position: absolute;
+    top: 12px; right: 14px;
+    background: #6B4423;
+    color: #FDF6E3;
+    border: none;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .close-btn:active { transform: scale(0.9); }
+
+  .note-modal {
+    background: #FDF6E3;
+    border-radius: 20px;
+    max-width: 380px;
+    width: 100%;
+    padding: 22px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+  }
+  .note-modal h2 {
+    color: #6B4423;
+    font-size: 18px;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .note-modal .subtitle-note {
+    text-align: center;
+    font-size: 13px;
+    color: #8B5A3C;
+    margin-bottom: 14px;
+  }
+  .note-option {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    background: #FAE8D4;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #4A3728;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+  }
+  .note-option:hover { background: #F5CBA7; }
+  .note-option.selected { background: #A8D5BA; border-color: #2E7D32; }
+  .note-modal .btn-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .note-modal .btn-group button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .btn-save { background: #6B4423; color: #FDF6E3; }
+  .btn-clear { background: #F5B7B1; color: #4A3728; }
+  .btn-cancel { background: #EAD5B7; color: #4A3728; }
+
+  .panel-btn {
+    width: 100%;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #6B4423 0%, #8B5A3C 100%);
+    color: #FDF6E3;
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(107, 68, 35, 0.3);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .panel-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(107, 68, 35, 0.4); }
+  .panel-btn:active { transform: scale(0.98); }
+  .panel-btn .panel-btn-title { font-size: 18px; }
+  .panel-btn .panel-btn-percent {
+    font-size: 24px;
+    font-weight: 800;
+    color: #F9E79F;
+    margin-top: 2px;
+  }
+  .panel-btn .panel-btn-arrow {
+    font-size: 14px;
+    margin-top: 2px;
+    transition: transform 0.3s ease;
+  }
+  .panel-btn.active .panel-btn-arrow { transform: rotate(180deg); }
+
+  .weekly-panel {
+    display: none;
+    margin-top: 12px;
+    animation: slideUp 0.4s ease;
+  }
+  .weekly-panel.active { display: block; }
+  .weekly-panel-inner {
+    background: #FDF6E3;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(107, 68, 35, 0.15);
+  }
+  .week-section { margin-bottom: 20px; }
+  .week-section h3 {
+    font-size: 16px;
+    color: #6B4423;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px dashed #D4A373;
+    font-weight: 800;
+  }
+  .week-summary-card {
+    background: linear-gradient(135deg, #FAE8D4 0%, #F5CBA7 100%);
+    padding: 18px;
+    border-radius: 14px;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .week-summary-card .level-emoji { font-size: 44px; display: block; margin-bottom: 4px; }
+  .week-summary-card .level-name { font-size: 18px; font-weight: 800; color: #6B4423; margin-bottom: 8px; }
+  .week-summary-card .level-percent { font-size: 36px; font-weight: 800; color: #6B4423; line-height: 1; }
+  .week-summary-card .level-fraction { font-size: 14px; color: #8B5A3C; margin-top: 4px; }
+
+  .day-progress {
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .day-progress .day-label { font-weight: 800; color: #6B4423; }
+  .day-progress .bar-bg {
+    background: #EAD5B7;
+    height: 14px;
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  .day-progress .bar-fill {
+    background: linear-gradient(90deg, #A8D5BA, #6B4423);
+    height: 100%;
+    border-radius: 7px;
+    transition: width 0.5s ease;
+  }
+  .day-progress .day-count { font-size: 12px; color: #4A3728; text-align: right; font-weight: 700; }
+
+  .download-btns {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .download-btns button {
+    flex: 1;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    background: #6B4423;
+    color: #FDF6E3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .download-btns button:active { transform: scale(0.95); }
+
+  .history-item {
+    background: #FAE8D4;
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4A3728;
+  }
+  .history-item .h-emoji { font-size: 20px; margin-right: 6px; }
+  .history-item .h-dates { flex: 1; }
+  .history-item .h-percent { font-weight: 800; color: #6B4423; }
+  .history-item .h-download {
+    background: #6B4423;
+    color: #FDF6E3;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    margin-left: 8px;
+    font-weight: 700;
+  }
+  .history-empty {
+    text-align: center;
+    font-size: 13px;
+    color: #8B5A3C;
+    font-style: italic;
+    padding: 14px;
+  }
+
+  .end-week-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(74, 55, 40, 0.75);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .end-week-overlay.active { display: flex; animation: fadeIn 0.4s ease; }
+  .end-week-modal {
+    background: linear-gradient(135deg, #FDF6E3 0%, #FAE8D4 100%);
+    border-radius: 24px;
+    max-width: 420px;
+    width: 100%;
+    padding: 30px 24px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+    animation: popIn 0.5s ease;
+  }
+  .end-week-modal .big-emoji { font-size: 72px; display: block; margin-bottom: 8px; }
+  .end-week-modal .big-level { font-size: 26px; font-weight: 800; color: #6B4423; margin-bottom: 14px; }
+  .end-week-modal .big-percent { font-size: 56px; font-weight: 800; color: #8B5A3C; line-height: 1; }
+  .end-week-modal .big-fraction { font-size: 16px; color: #6B4423; margin: 4px 0 20px; font-weight: 700; }
+  .end-week-modal .motiv-phrase {
+    background: rgba(107, 68, 35, 0.08);
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 15px;
+    color: #4A3728;
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  .end-week-modal .reminder {
+    background: #F9E79F;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #4A3728;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+  .end-week-modal .end-btns { display: flex; gap: 8px; }
+  .end-week-modal .end-btns button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .btn-share-week { background: #6B4423; color: #FDF6E3; }
+  .btn-close-week { background: #EAD5B7; color: #4A3728; }
+
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    z-index: 250;
+    pointer-events: none;
+    animation: confettiFall 3s linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  .footer { text-align: center; margin-top: 18px; font-size: 13px; color: #8B5A3C; padding: 10px; font-style: italic; }
+
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .header h1 { font-size: 36px; }
+    .header .paw-icon { font-size: 22px; }
+    .subtitle { font-size: 22px; }
+    .menu-table { border-spacing: 3px; }
+    .menu-table thead th { font-size: 9px; padding: 4px 2px; }
+    .menu-table thead th .hora { font-size: 10px; }
+    .day-cell { font-size: 10px; }
+    .meal-btn {
+      height: 130px;
+      border-radius: 10px;
+      padding: 8px 4px 32px 4px;
+      gap: 2px;
+    }
+    .meal-btn .icon { font-size: 18px; }
+    .meal-btn .label { font-size: 8px; line-height: 1.2; }
+    .check-btn { width: 22px; height: 22px; font-size: 14px; border-width: 1.5px; bottom: 4px; right: 4px; }
+    .note-btn { width: 22px; height: 22px; font-size: 10px; border-width: 1.5px; bottom: 4px; left: 4px; }
+    .panel-btn .panel-btn-title { font-size: 15px; }
+    .panel-btn .panel-btn-percent { font-size: 20px; }
+    .end-week-modal .big-percent { font-size: 44px; }
+    td.collapsed-info { font-size: 11px; padding: 8px; }
+    td.collapsed-info .dots { font-size: 12px; }
+    td.collapsed-info .expand-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1><span class="paw-icon">🐾</span>Menú de Kenay<span class="paw-icon">🐾</span></h1>
+    <p class="quote">"No es un gasto en Kenay, es una inversión en nuestra felicidad"</p>
+  </div>
+
+  <h2 class="subtitle">Calendario Semanal</h2>
+
+  <table class="menu-table">
+    <colgroup>
+      <col class="col-day">
+      <col class="col-meal">
+      <col class="col-meal">
+      <col class="col-meal">
+      <col class="col-meal">
+      <col class="col-meal">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Día</th>
+        <th>C1<span class="hora">8:00 am</span></th>
+        <th>C2<span class="hora">10:30 am</span></th>
+        <th>C3<span class="hora">1:00 pm</span></th>
+        <th>C4<span class="hora">4:30 pm</span></th>
+        <th>C5<span class="hora">8:00 pm</span></th>
+      </tr>
+    </thead>
+    <tbody id="mealsBody"></tbody>
+  </table>
+
+  <button class="panel-btn" id="panelBtn" onclick="togglePanel()">
+    <span class="panel-btn-title">📊 Panel Semanal</span>
+    <span class="panel-btn-percent" id="btnPercent">0%</span>
+    <span class="panel-btn-arrow">▼</span>
+  </button>
+
+  <div class="weekly-panel" id="weeklyPanel">
+    <div class="weekly-panel-inner">
+      <div class="week-section">
+        <h3 id="currentWeekTitle">📅 Esta semana</h3>
+        <div class="week-summary-card">
+          <span class="level-emoji" id="curEmoji">🌟</span>
+          <div class="level-name" id="curLevelName">¡Buena semana!</div>
+          <div class="level-percent" id="curPercent">0%</div>
+          <div class="level-fraction" id="curFraction">0/35 comidas</div>
+        </div>
+        <div id="dayProgressList"></div>
+        <div class="download-btns">
+          <button onclick="downloadCSV()">📄 Descargar CSV</button>
+          <button onclick="downloadImage()">🖼️ Imagen WhatsApp</button>
+        </div>
+      </div>
+
+      <div class="week-section">
+        <h3>📚 Historial (últimas 4 semanas)</h3>
+        <div id="historyList">
+          <div class="history-empty">Aún no hay semanas anteriores guardadas 🐾</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Hecho con 💛 para Kenay</div>
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalContent" onclick="event.stopPropagation()">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="noteOverlay" onclick="closeNoteOutside(event)">
+  <div class="note-modal" onclick="event.stopPropagation()">
+    <h2>📝 Nota de comida</h2>
+    <div class="subtitle-note" id="noteMealName">Comida</div>
+    <button class="note-option" data-note="Comió todo" onclick="selectNoteOption(this)">✅ Comió todo</button>
+    <button class="note-option" data-note="Comió la mitad" onclick="selectNoteOption(this)">✅ Comió la mitad</button>
+    <button class="note-option" data-note="No quiso" onclick="selectNoteOption(this)">✅ No quiso</button>
+    <button class="note-option" data-note="Vomitó después" onclick="selectNoteOption(this)">✅ Vomitó después</button>
+    <div class="btn-group">
+      <button class="btn-clear" onclick="clearNote()">Borrar</button>
+      <button class="btn-cancel" onclick="closeNoteModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveNote()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="end-week-overlay" id="endWeekOverlay">
+  <div class="end-week-modal">
+    <span class="big-emoji" id="endEmoji">🌟</span>
+    <div class="big-level" id="endLevel">¡Buena semana!</div>
+    <div class="big-percent" id="endPercent">85%</div>
+    <div class="big-fraction" id="endFraction">30/35 comidas</div>
+    <div class="motiv-phrase" id="endPhrase">Frase motivadora aquí</div>
+    <div class="reminder">📥 ¡No olvides descargar la imagen para compartir el resumen! 🐾</div>
+    <div class="end-btns">
+      <button class="btn-close-week" onclick="closeEndWeek()">Cerrar</button>
+      <button class="btn-share-week" onclick="downloadImage(); closeEndWeek();">🖼️ Descargar imagen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const recetas = {
+    lun1: { icon: "🐔", titulo: "Pollo + arroz + calabaza", tiempos: ["Pollo: 12 min hervido","Arroz: 20 min","Calabaza: 10 min al vapor"], cantidades: ["Pollo (pechuga sin piel): 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Calabaza (auyama): 6 g (½ cda)"], pasos: ["Lava la pechuga y córtala en trozos pequeños.","Hierve el pollo en agua sin sal por 12 minutos.","En paralelo, cocina el arroz con doble agua (1 taza arroz : 2.5 tazas agua) por 20 min.","Pela la calabaza, quita las semillas y córtala en cubos. Cocínala al vapor 10 min hasta que esté blanda.","Desmecha el pollo bien fino y mezcla con el arroz y la calabaza aplastada.","Sirve tibio (38-40°C). Puedes rociar 1 cdita de caldo de pollo para potenciar aroma."] },
+    lun5: { icon: "🐟", titulo: "Tilapia + arroz + calabaza", tiempos: ["Tilapia: 10 min al vapor","Arroz: 20 min","Calabaza: 10 min al vapor"], cantidades: ["Tilapia (filete sin piel): 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Calabaza: 6 g (½ cda)"], pasos: ["Revisa la tilapia y retira TODAS las espinas cuidadosamente.","Cocina la tilapia al vapor 10 min sin sal ni condimentos.","Cocina el arroz con doble agua por 20 min.","Cocina la calabaza pelada al vapor 10 min.","Desmenuza la tilapia con tenedor y mezcla con el arroz y la calabaza aplastada.","Sirve tibio (38-40°C)."] },
+    mar1: { icon: "🐟", titulo: "Tilapia + arroz + guatila", tiempos: ["Tilapia: 10 min al vapor","Arroz: 20 min","Guatila: 12 min al vapor"], cantidades: ["Tilapia: 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Guatila: 6 g (½ cda)"], pasos: ["Pela la guatila (usa guantes para evitar la savia), retira la semilla central y córtala en cubos pequeños.","Revisa y retira las espinas de la tilapia. Cocínala al vapor 10 min.","Cocina el arroz con doble agua por 20 min.","Cocina la guatila al vapor 12 min hasta que esté muy blanda.","Desmenuza la tilapia y mezcla todo aplastando ligeramente.","Sirve tibio (38-40°C)."] },
+    mar5: { icon: "🐔", titulo: "Pollo + arroz + zanahoria", tiempos: ["Pollo: 12 min hervido","Arroz: 20 min","Zanahoria: 10 min al vapor"], cantidades: ["Pollo: 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Zanahoria: 6 g (½ cda)"], pasos: ["Lava y corta la pechuga en trozos pequeños.","Hierve el pollo sin sal por 12 min.","Cocina el arroz con doble agua por 20 min.","Pela la zanahoria, córtala en rodajas finas y cocínala al vapor 10 min.","Desmecha el pollo y mezcla con arroz y zanahoria triturada.","Sirve tibio (38-40°C)."] },
+    mie1: { icon: "🦃", titulo: "Pavo + arroz + calabaza", tiempos: ["Pavo: 12 min hervido","Arroz: 20 min","Calabaza: 10 min al vapor"], cantidades: ["Pechuga de pavo sin piel: 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Calabaza: 6 g (½ cda)"], pasos: ["Lava la pechuga de pavo y córtala en trozos pequeños.","Hierve el pavo sin sal por 12 min.","Cocina el arroz con doble agua por 20 min.","Cocina la calabaza pelada al vapor 10 min.","Desmecha el pavo bien fino y mezcla con arroz y calabaza aplastada.","Sirve tibio (38-40°C)."] },
+    mie5: { icon: "🐟", titulo: "Tilapia + arroz + zanahoria", tiempos: ["Tilapia: 10 min al vapor","Arroz: 20 min","Zanahoria: 10 min al vapor"], cantidades: ["Tilapia: 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Zanahoria: 6 g (½ cda)"], pasos: ["Revisa y retira todas las espinas de la tilapia.","Cocina la tilapia al vapor 10 min.","Cocina el arroz con doble agua por 20 min.","Pela la zanahoria, córtala en rodajas finas y cocínala al vapor 10 min.","Desmenuza la tilapia y mezcla con arroz y zanahoria triturada.","Sirve tibio (38-40°C)."] },
+    jue1: { icon: "🐔", titulo: "Pollo + papa + guatila", tiempos: ["Pollo: 12 min hervido","Papa: 15 min al vapor","Guatila: 12 min al vapor"], cantidades: ["Pollo: 10 g (1 cda)","Papa pastusa: 12 g (1 cda)","Guatila: 6 g (½ cda)"], pasos: ["Pela la papa y córtala en cubitos pequeños.","Pela la guatila (con guantes), retira la semilla y córtala en cubos.","Hierve el pollo sin sal por 12 min.","Cocina la papa y la guatila al vapor por 15 y 12 min respectivamente.","Desmecha el pollo y mezcla con papa y guatila aplastadas.","Sirve tibio (38-40°C)."] },
+    jue5: { icon: "🐟", titulo: "Tilapia + papa + calabaza", tiempos: ["Tilapia: 10 min al vapor","Papa: 15 min al vapor","Calabaza: 10 min al vapor"], cantidades: ["Tilapia: 10 g (1 cda)","Papa: 12 g (1 cda)","Calabaza: 6 g (½ cda)"], pasos: ["Retira las espinas de la tilapia con cuidado.","Pela la papa y córtala en cubitos.","Pela la calabaza y quita las semillas.","Cocina la tilapia al vapor 10 min, la papa 15 min y la calabaza 10 min.","Desmenuza la tilapia y mezcla con papa y calabaza aplastadas.","Sirve tibio (38-40°C)."] },
+    vie1: { icon: "🐟", titulo: "Tilapia + arroz + calabaza", tiempos: ["Tilapia: 10 min al vapor","Arroz: 20 min","Calabaza: 10 min al vapor"], cantidades: ["Tilapia: 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Calabaza: 6 g (½ cda)"], pasos: ["Retira todas las espinas de la tilapia.","Cocina la tilapia al vapor 10 min.","Cocina el arroz con doble agua por 20 min.","Cocina la calabaza pelada al vapor 10 min.","Desmenuza la tilapia y mezcla con arroz y calabaza aplastada.","Sirve tibio (38-40°C)."] },
+    vie5: { icon: "🐔", titulo: "Pollo + arroz + guatila", tiempos: ["Pollo: 12 min hervido","Arroz: 20 min","Guatila: 12 min al vapor"], cantidades: ["Pollo: 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Guatila: 6 g (½ cda)"], pasos: ["Lava y corta la pechuga en trozos pequeños.","Pela la guatila (con guantes), retira la semilla y córtala en cubos.","Hierve el pollo sin sal por 12 min.","Cocina el arroz con doble agua por 20 min.","Cocina la guatila al vapor 12 min.","Desmecha el pollo y mezcla con arroz y guatila aplastada.","Sirve tibio (38-40°C)."] },
+    sab1: { icon: "🦃", titulo: "Pavo + papa + zanahoria", tiempos: ["Pavo: 12 min hervido","Papa: 15 min al vapor","Zanahoria: 10 min al vapor"], cantidades: ["Pavo: 10 g (1 cda)","Papa: 12 g (1 cda)","Zanahoria: 6 g (½ cda)"], pasos: ["Lava la pechuga de pavo y córtala en trozos pequeños.","Pela la papa y córtala en cubitos.","Pela la zanahoria y córtala en rodajas finas.","Hierve el pavo sin sal por 12 min.","Cocina la papa al vapor 15 min y la zanahoria 10 min.","Desmecha el pavo y mezcla con papa y zanahoria trituradas. Sirve tibio."] },
+    sab5: { icon: "🐔", titulo: "Pollo + papa + calabaza", tiempos: ["Pollo: 12 min hervido","Papa: 15 min al vapor","Calabaza: 10 min al vapor"], cantidades: ["Pollo: 10 g (1 cda)","Papa: 12 g (1 cda)","Calabaza: 6 g (½ cda)"], pasos: ["Lava y corta la pechuga en trozos pequeños.","Pela la papa y córtala en cubitos.","Pela la calabaza y quita las semillas.","Hierve el pollo sin sal por 12 min.","Cocina la papa al vapor 15 min y la calabaza 10 min.","Desmecha el pollo y mezcla con papa y calabaza aplastadas. Sirve tibio."] },
+    dom1: { icon: "🐔", titulo: "Pollo + arroz + guatila", tiempos: ["Pollo: 12 min hervido","Arroz: 20 min","Guatila: 12 min al vapor"], cantidades: ["Pollo: 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Guatila: 6 g (½ cda)"], pasos: ["Lava y corta la pechuga en trozos pequeños.","Pela la guatila (con guantes), retira la semilla y córtala en cubos.","Hierve el pollo sin sal por 12 min.","Cocina el arroz con doble agua por 20 min.","Cocina la guatila al vapor 12 min.","Desmecha el pollo y mezcla con arroz y guatila aplastada. Sirve tibio."] },
+    dom5: { icon: "🐟", titulo: "Tilapia + arroz + zanahoria", tiempos: ["Tilapia: 10 min al vapor","Arroz: 20 min","Zanahoria: 10 min al vapor"], cantidades: ["Tilapia: 10 g (1 cda)","Arroz blanco: 10 g (1 cda)","Zanahoria: 6 g (½ cda)"], pasos: ["Retira las espinas de la tilapia con cuidado.","Cocina la tilapia al vapor 10 min.","Cocina el arroz con doble agua por 20 min.","Pela la zanahoria, córtala en rodajas finas y cocínala al vapor 10 min.","Desmenuza la tilapia y mezcla con arroz y zanahoria triturada.","Sirve tibio (38-40°C)."] },
+    claraMzn: { icon: "🥚🍎", titulo: "Clara de huevo + manzana roja", tiempos: ["Clara: 6 min hervida","Manzana: sin cocción"], cantidades: ["Clara de huevo cocida: 15 g (½ clara)","Manzana roja pelada: 8 g (¾ cda)"], pasos: ["Hierve el huevo entero durante 6 min.","Deja enfriar, pélalo y separa la clara (descarta la yema).","Corta 15 g de clara en cubitos pequeños.","Pela la manzana roja, retira las semillas y el corazón.","Corta 8 g en cubitos muy pequeños.","Mezcla clara y manzana. Sirve a temperatura ambiente."] },
+    claraPera: { icon: "🥚🍐", titulo: "Clara de huevo + pera", tiempos: ["Clara: 6 min hervida","Pera: sin cocción"], cantidades: ["Clara de huevo cocida: 15 g (½ clara)","Pera pelada: 8 g (¾ cda)"], pasos: ["Hierve el huevo entero durante 6 min.","Deja enfriar, pélalo y separa la clara (descarta la yema).","Corta 15 g de clara en cubitos pequeños.","Pela la pera y retira las semillas.","Corta 8 g en cubitos muy pequeños.","Mezcla clara y pera. Sirve a temperatura ambiente."] },
+    yogPera: { icon: "🥛🍐", titulo: "Yogurt griego 0% + pera", tiempos: ["Sin cocción","Preparación: 2 min"], cantidades: ["Yogurt griego natural 0% sin azúcar: 15 g (1 cda)","Pera pelada: 8 g (¾ cda)"], pasos: ["Saca el yogurt del refri unos minutos antes (que no esté helado).","Pela la pera y retira las semillas.","Corta 8 g en cubitos muy pequeños.","Sirve el yogurt en el platico y agrega la pera encima.","Mezcla suavemente y ofrécele."] },
+    yogMzn: { icon: "🥛🍎", titulo: "Yogurt griego 0% + manzana roja", tiempos: ["Sin cocción","Preparación: 2 min"], cantidades: ["Yogurt griego natural 0% sin azúcar: 15 g (1 cda)","Manzana roja pelada: 8 g (¾ cda)"], pasos: ["Saca el yogurt del refri unos minutos antes (que no esté helado).","Pela la manzana roja, retira semillas y corazón.","Corta 8 g en cubitos muy pequeños.","Sirve el yogurt en el platico y agrega la manzana encima.","Mezcla suavemente y ofrécele."] },
+    seca: { icon: "🦴", titulo: "Comida seca (BR Vet Hepatic rehidratada)", tiempos: ["Reposar: 5-10 min","Servir tibia (38-40°C)"], cantidades: ["Croquetas BR Vet Hepatic: 10 g (1 cda sopera rasa)","Caldo de pollo casero tibio sin sal: 2-3 cdas"], pasos: ["Pesa 10 g de croquetas (aprox. 1 cda sopera rasa) en el platico de Kenay.","Calienta 2-3 cdas de caldo de pollo casero sin sal hasta que esté tibio (38-40°C).","Vierte el caldo sobre las croquetas cubriéndolas por completo.","Deja reposar 5-10 min hasta que las croquetas estén blandas.","Aplasta ligeramente con un tenedor para lograr textura de papilla suave.","Verifica que esté tibia (no caliente) antes de servir. Este es el truco para despertar el apetito. 🐾"] }
+  };
+
+  const dayNames = ["LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"];
+  const dayFullNames = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+  const mealTimes = ["8:00 am","10:30 am","1:00 pm","4:30 pm","8:00 pm"];
+  const mealTimesHours = [8, 10.5, 13, 16.5, 20];
+
+  const weekMenu = [
+    [ {id:"lun1", cls:"btn-pollo", icon:"🐔", label:"Pollo<br>arroz<br>calabaza", carb:"Arroz", prot:"Pollo", veg:"Calabaza"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"claraMzn", cls:"btn-clara", icon:"🥚🍎", label:"Clara<br>manzana", carb:"Manzana", prot:"Clara huevo", veg:"—"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"lun5", cls:"btn-tilapia", icon:"🐟", label:"Tilapia<br>arroz<br>calabaza", carb:"Arroz", prot:"Tilapia", veg:"Calabaza"} ],
+    [ {id:"mar1", cls:"btn-tilapia", icon:"🐟", label:"Tilapia<br>arroz<br>guatila", carb:"Arroz", prot:"Tilapia", veg:"Guatila"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"yogPera", cls:"btn-yogurt", icon:"🥛🍐", label:"Yogurt<br>pera", carb:"Pera", prot:"Yogurt griego", veg:"—"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"mar5", cls:"btn-pollo", icon:"🐔", label:"Pollo<br>arroz<br>zanahoria", carb:"Arroz", prot:"Pollo", veg:"Zanahoria"} ],
+    [ {id:"mie1", cls:"btn-pavo", icon:"🦃", label:"Pavo<br>arroz<br>calabaza", carb:"Arroz", prot:"Pavo", veg:"Calabaza"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"claraMzn", cls:"btn-clara", icon:"🥚🍎", label:"Clara<br>manzana", carb:"Manzana", prot:"Clara huevo", veg:"—"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"mie5", cls:"btn-tilapia", icon:"🐟", label:"Tilapia<br>arroz<br>zanahoria", carb:"Arroz", prot:"Tilapia", veg:"Zanahoria"} ],
+    [ {id:"jue1", cls:"btn-pollo", icon:"🐔", label:"Pollo<br>papa<br>guatila", carb:"Papa", prot:"Pollo", veg:"Guatila"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"yogMzn", cls:"btn-yogurt", icon:"🥛🍎", label:"Yogurt<br>manzana", carb:"Manzana", prot:"Yogurt griego", veg:"—"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"jue5", cls:"btn-tilapia", icon:"🐟", label:"Tilapia<br>papa<br>calabaza", carb:"Papa", prot:"Tilapia", veg:"Calabaza"} ],
+    [ {id:"vie1", cls:"btn-tilapia", icon:"🐟", label:"Tilapia<br>arroz<br>calabaza", carb:"Arroz", prot:"Tilapia", veg:"Calabaza"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"claraPera", cls:"btn-clara", icon:"🥚🍐", label:"Clara<br>pera", carb:"Pera", prot:"Clara huevo", veg:"—"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"vie5", cls:"btn-pollo", icon:"🐔", label:"Pollo<br>arroz<br>guatila", carb:"Arroz", prot:"Pollo", veg:"Guatila"} ],
+    [ {id:"sab1", cls:"btn-pavo", icon:"🦃", label:"Pavo<br>papa<br>zanahoria", carb:"Papa", prot:"Pavo", veg:"Zanahoria"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"yogMzn", cls:"btn-yogurt", icon:"🥛🍎", label:"Yogurt<br>manzana", carb:"Manzana", prot:"Yogurt griego", veg:"—"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"sab5", cls:"btn-pollo", icon:"🐔", label:"Pollo<br>papa<br>calabaza", carb:"Papa", prot:"Pollo", veg:"Calabaza"} ],
+    [ {id:"dom1", cls:"btn-pollo", icon:"🐔", label:"Pollo<br>arroz<br>guatila", carb:"Arroz", prot:"Pollo", veg:"Guatila"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"claraMzn", cls:"btn-clara", icon:"🥚🍎", label:"Clara<br>manzana", carb:"Manzana", prot:"Clara huevo", veg:"—"},
+      {id:"seca", cls:"btn-seca", icon:"🦴", label:"Comida<br>seca", carb:"—", prot:"BR Hepatic", veg:"—"},
+      {id:"dom5", cls:"btn-tilapia", icon:"🐟", label:"Tilapia<br>arroz<br>zanahoria", carb:"Arroz", prot:"Tilapia", veg:"Zanahoria"} ]
+  ];
+
+  const phrases = {
+    buena: [
+      "¡Kenay tiene la mejor familia del mundo! 💛 Esta semana la constancia se notó.",
+      "Semana estelar 🌟 Su amor y disciplina son el mejor medicamento para Kenay.",
+      "¡Lo lograron! Kenay se siente cuidado y amado. Sigan así 🐾",
+      "Constancia = amor. Y esta semana amaron con todo 💛",
+      "Kenay dice ¡GRACIAS! con su colita 🐕 Semana ejemplar."
+    ],
+    regular: [
+      "Semana con altibajos, pero cada comida cuenta 💪 La próxima será mejor.",
+      "Vamos por buen camino 🌱 No se exijan perfección, exíjanse constancia.",
+      "Kenay valora cada esfuerzo. Recuperen el ritmo esta nueva semana 🐾",
+      "El cuidado no es perfecto, es constante. ¡Ustedes pueden! 💛"
+    ],
+    mala: [
+      "Semana difícil, pero aquí estamos 🤗 Mañana es una nueva oportunidad.",
+      "Kenay los ama incondicionalmente. Respiren y arranquen con más fuerza esta semana 💛",
+      "A veces la vida nos gana. Está bien. Ahora vamos por Kenay con todo 🐾",
+      "Cada comida cuenta. Pequeños pasos, gran diferencia. Vamos 💪"
+    ]
+  };
+
+  const STORAGE_CURRENT = "kenay_currentWeek";
+  const STORAGE_HISTORY = "kenay_history";
+  const STORAGE_ENDPOPUP = "kenay_endWeekShown";
+
+  function getWeekStart(date = new Date()) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(5, 0, 0, 0);
+    return d;
+  }
+
+  function formatDate(date) {
+    return date.toLocaleDateString("es-CO", { day: "2-digit", month: "short" });
+  }
+
+  function loadCurrentWeek() {
+    const stored = localStorage.getItem(STORAGE_CURRENT);
+    const weekStart = getWeekStart();
+    if (stored) {
+      const data = JSON.parse(stored);
+      const savedStart = new Date(data.weekStart);
+      if (savedStart.getTime() === weekStart.getTime()) return data;
+      else archiveWeek(data);
+    }
+    return { weekStart: weekStart.toISOString(), meals: {} };
+  }
+
+  function saveCurrentWeek(data) {
+    localStorage.setItem(STORAGE_CURRENT, JSON.stringify(data));
+  }
+
+  function archiveWeek(weekData) {
+    const history = JSON.parse(localStorage.getItem(STORAGE_HISTORY) || "[]");
+    const totalDone = Object.values(weekData.meals).filter(m => m.done).length;
+    weekData.totalDone = totalDone;
+    weekData.percent = Math.round((totalDone / 35) * 100);
+    history.unshift(weekData);
+    while (history.length > 4) history.pop();
+    localStorage.setItem(STORAGE_HISTORY, JSON.stringify(history));
+    localStorage.removeItem(STORAGE_ENDPOPUP);
+  }
+
+  function loadHistory() {
+    return JSON.parse(localStorage.getItem(STORAGE_HISTORY) || "[]");
+  }
+
+  let currentWeek = loadCurrentWeek();
+  saveCurrentWeek(currentWeek);
+
+  let manualExpandedDay = null;
+
+  function getTodayIndex() {
+    const now = new Date();
+    const day = now.getDay();
+    return day === 0 ? 6 : day - 1;
+  }
+
+  function isWeekOver() {
+    const now = new Date();
+    const day = now.getDay();
+    if (day === 0) {
+      const hourDecimal = now.getHours() + now.getMinutes() / 60;
+      if (hourDecimal >= 20) return true;
+    }
+    return false;
+  }
+
+  function mealKey(dayIdx, mealIdx) {
+    return `d${dayIdx}m${mealIdx}`;
+  }
+
+  function countDoneByDay(dayIdx) {
+    let c = 0;
+    for (let m = 0; m < 5; m++) {
+      if (currentWeek.meals[mealKey(dayIdx, m)]?.done) c++;
+    }
+    return c;
+  }
+
+  function dotsProgress(dayIdx) {
+    let s = "";
+    for (let m = 0; m < 5; m++) {
+      s += currentWeek.meals[mealKey(dayIdx, m)]?.done ? "●" : "○";
+    }
+    return s;
+  }
+
+  function renderMeals() {
+    const tbody = document.getElementById("mealsBody");
+    tbody.innerHTML = "";
+    const todayIdx = getTodayIndex();
+    const weekOver = isWeekOver();
+
+    weekMenu.forEach((day, dayIdx) => {
+      const isToday = !weekOver && dayIdx === todayIdx;
+      const isManuallyOpen = manualExpandedDay === dayIdx;
+      const isExpanded = isToday || isManuallyOpen;
+
+      const tr = document.createElement("tr");
+      tr.className = isExpanded ? "expanded" : "collapsed";
+      if (isToday) tr.classList.add("today");
+      tr.dataset.day = dayIdx;
+
+      const tdDay = document.createElement("td");
+      tdDay.className = "day-cell";
+      tdDay.textContent = dayNames[dayIdx];
+      tdDay.onclick = () => toggleDay(dayIdx);
+      tr.appendChild(tdDay);
+
+      if (isExpanded) {
+        day.forEach((meal, mealIdx) => {
+          const key = mealKey(dayIdx, mealIdx);
+          const state = currentWeek.meals[key] || {};
+          const isDone = state.done;
+          const hasNote = state.note && state.note.length > 0;
+
+          const td = document.createElement("td");
+          td.className = "meal-cell";
+          td.innerHTML = `
+            <button class="meal-btn ${meal.cls} ${isDone ? 'done' : ''} ${hasNote ? 'has-note' : ''}"
+              data-day="${dayIdx}" data-meal="${mealIdx}" data-recipe="${meal.id}"
+              onclick="openRecipe(event, '${meal.id}')">
+              <div class="meal-top">
+                <span class="icon">${meal.icon}</span>
+                <span class="label">${meal.label}</span>
+              </div>
+              <button class="note-btn" onclick="openNoteFromBtn(event, ${dayIdx}, ${mealIdx})" title="Nota">📝</button>
+              <button class="check-btn" onclick="toggleDoneFromBtn(event, ${dayIdx}, ${mealIdx})" title="Marcar">${isDone ? '✅' : ''}</button>
+              ${hasNote ? `<span class="note-tooltip">${state.note}</span>` : ''}
+            </button>`;
+          tr.appendChild(td);
+        });
+      } else {
+        const c = countDoneByDay(dayIdx);
+        const tdCollapsed = document.createElement("td");
+        tdCollapsed.className = "collapsed-info";
+        tdCollapsed.setAttribute("colspan", "5");
+        tdCollapsed.onclick = () => toggleDay(dayIdx);
+        tdCollapsed.innerHTML = `
+          <span class="dots">${dotsProgress(dayIdx)}</span>
+          <span class="frac">${c}/5</span>
+          <span class="expand-hint">— toca para ver</span>`;
+        tr.appendChild(tdCollapsed);
+      }
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function toggleDay(dayIdx) {
+    const todayIdx = getTodayIndex();
+    const weekOver = isWeekOver();
+    if (!weekOver && dayIdx === todayIdx) return;
+    manualExpandedDay = (manualExpandedDay === dayIdx) ? null : dayIdx;
+    renderMeals();
+  }
+
+  function toggleDoneFromBtn(e, dayIdx, mealIdx) {
+    e.stopPropagation();
+    e.preventDefault();
+    const key = mealKey(dayIdx, mealIdx);
+    if (!currentWeek.meals[key]) currentWeek.meals[key] = {};
+    const state = currentWeek.meals[key];
+    state.done = !state.done;
+    if (state.done) {
+      const now = new Date();
+      state.timeGiven = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    } else {
+      delete state.timeGiven;
+    }
+    saveCurrentWeek(currentWeek);
+    renderMeals();
+    updatePanel();
+
+    if (state.done && dayIdx === 6 && mealIdx === 4) {
+      const alreadyShown = localStorage.getItem(STORAGE_ENDPOPUP);
+      if (!alreadyShown) {
+        localStorage.setItem(STORAGE_ENDPOPUP, "1");
+        setTimeout(showEndWeekPopup, 400);
+      }
+    }
+  }
+
+  function openNoteFromBtn(e, dayIdx, mealIdx) {
+    e.stopPropagation();
+    e.preventDefault();
+    currentEditKey = mealKey(dayIdx, mealIdx);
+    const state = currentWeek.meals[currentEditKey] || {};
+    currentSelectedNote = state.note || null;
+    document.getElementById("noteMealName").textContent =
+      `${dayFullNames[dayIdx]} — ${mealTimes[mealIdx]}`;
+    document.querySelectorAll(".note-option").forEach(opt => {
+      opt.classList.toggle("selected", opt.dataset.note === currentSelectedNote);
+    });
+    document.getElementById("noteOverlay").classList.add("active");
+  }
+
+  function openRecipe(e, recipeId) {
+    if (e.target.closest(".check-btn") || e.target.closest(".note-btn")) return;
+    openModal(recipeId);
+  }
+
+  let currentEditKey = null;
+  let currentSelectedNote = null;
+
+  function selectNoteOption(el) {
+    if (currentSelectedNote === el.dataset.note) {
+      el.classList.remove("selected");
+      currentSelectedNote = null;
+    } else {
+      document.querySelectorAll(".note-option").forEach(opt => opt.classList.remove("selected"));
+      el.classList.add("selected");
+      currentSelectedNote = el.dataset.note;
+    }
+  }
+
+  function saveNote() {
+    if (!currentEditKey) return;
+    if (!currentWeek.meals[currentEditKey]) currentWeek.meals[currentEditKey] = {};
+    if (currentSelectedNote) currentWeek.meals[currentEditKey].note = currentSelectedNote;
+    else delete currentWeek.meals[currentEditKey].note;
+    saveCurrentWeek(currentWeek);
+    closeNoteModal();
+    renderMeals();
+    updatePanel();
+  }
+
+  function clearNote() {
+    if (!currentEditKey) return;
+    if (currentWeek.meals[currentEditKey]) delete currentWeek.meals[currentEditKey].note;
+    saveCurrentWeek(currentWeek);
+    closeNoteModal();
+    renderMeals();
+  }
+
+  function closeNoteModal() {
+    document.getElementById("noteOverlay").classList.remove("active");
+    currentEditKey = null;
+    currentSelectedNote = null;
+  }
+
+  function closeNoteOutside(e) {
+    if (e.target.id === "noteOverlay") closeNoteModal();
+  }
+
+  function togglePanel() {
+    const panel = document.getElementById("weeklyPanel");
+    const btn = document.getElementById("panelBtn");
+    panel.classList.toggle("active");
+    btn.classList.toggle("active");
+    if (panel.classList.contains("active")) {
+      renderHistory();
+      setTimeout(() => panel.scrollIntoView({ behavior: "smooth", block: "start" }), 200);
+    }
+  }
+
+  function calculateExpectedMeals() {
+    const now = new Date();
+    const weekStart = new Date(currentWeek.weekStart);
+    const dayMs = 24 * 60 * 60 * 1000;
+    let expected = 0;
+    for (let d = 0; d < 7; d++) {
+      const dayDate = new Date(weekStart.getTime() + d * dayMs);
+      if (dayDate > now) break;
+      const isToday = dayDate.toDateString() === now.toDateString();
+      if (!isToday) expected += 5;
+      else {
+        const nowHour = now.getHours() + now.getMinutes() / 60;
+        for (let m = 0; m < 5; m++) if (nowHour >= mealTimesHours[m]) expected++;
+      }
+    }
+    return expected;
+  }
+
+  function countDone() {
+    return Object.values(currentWeek.meals).filter(m => m.done).length;
+  }
+
+  function getSemanalLevel(total) {
+    if (total >= 28) return { key: "buena", emoji: "🌟", name: "¡Buena semana!" };
+    if (total >= 17) return { key: "regular", emoji: "😓", name: "Semana regular" };
+    return { key: "mala", emoji: "❗", name: "Semana difícil" };
+  }
+
+  function updatePanel() {
+    const done = countDone();
+    const expected = calculateExpectedMeals();
+    const btnPercent = expected > 0 ? Math.round((done / expected) * 100) : 0;
+    document.getElementById("btnPercent").textContent = `${btnPercent}%`;
+
+    const overallPercent = Math.round((done / 35) * 100);
+    const level = getSemanalLevel(done);
+    document.getElementById("curEmoji").textContent = level.emoji;
+    document.getElementById("curLevelName").textContent = level.name;
+    document.getElementById("curPercent").textContent = `${overallPercent}%`;
+    document.getElementById("curFraction").textContent = `${done}/35 comidas`;
+
+    const start = new Date(currentWeek.weekStart);
+    const end = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
+    document.getElementById("currentWeekTitle").textContent =
+      `📅 Esta semana (${formatDate(start)} - ${formatDate(end)})`;
+
+    const list = document.getElementById("dayProgressList");
+    list.innerHTML = "";
+    for (let d = 0; d < 7; d++) {
+      const c = countDoneByDay(d);
+      const w = (c / 5) * 100;
+      list.innerHTML += `
+        <div class="day-progress">
+          <div class="day-label">${dayNames[d]}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${w}%"></div></div>
+          <div class="day-count">${c}/5</div>
+        </div>`;
+    }
+  }
+
+  function renderHistory() {
+    const history = loadHistory();
+    const container = document.getElementById("historyList");
+    if (history.length === 0) {
+      container.innerHTML = `<div class="history-empty">Aún no hay semanas anteriores guardadas 🐾</div>`;
+      return;
+    }
+    container.innerHTML = "";
+    history.forEach((w, idx) => {
+      const start = new Date(w.weekStart);
+      const end = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
+      const level = getSemanalLevel(w.totalDone);
+      container.innerHTML += `
+        <div class="history-item">
+          <span class="h-emoji">${level.emoji}</span>
+          <div class="h-dates">${formatDate(start)} - ${formatDate(end)}</div>
+          <div class="h-percent">${w.percent}%</div>
+          <button class="h-download" onclick="downloadHistoryCSV(${idx})">📄 CSV</button>
+        </div>`;
+    });
+  }
+
+  function buildCSV(weekData) {
+    const rows = [["Fecha","Día de la semana","Hora prevista","Hora dada","Carbohidrato","Proteína","Vegetal","Dada","Notas"]];
+    const start = new Date(weekData.weekStart);
+    for (let d = 0; d < 7; d++) {
+      const dayDate = new Date(start.getTime() + d * 24 * 60 * 60 * 1000);
+      const dateStr = dayDate.toISOString().slice(0,10);
+      for (let m = 0; m < 5; m++) {
+        const meal = weekMenu[d][m];
+        const state = weekData.meals[mealKey(d, m)] || {};
+        rows.push([dateStr, dayFullNames[d], mealTimes[m], state.timeGiven || "—", meal.carb, meal.prot, meal.veg, state.done ? "Sí" : "No", state.note || ""]);
+      }
+    }
+    return rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  }
+
+  function triggerDownload(content, filename, mime) {
+    const blob = new Blob(["\uFEFF" + content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadCSV() {
+    const csv = buildCSV(currentWeek);
+    const start = new Date(currentWeek.weekStart);
+    triggerDownload(csv, `kenay_semana_${start.toISOString().slice(0,10)}.csv`, "text/csv;charset=utf-8;");
+  }
+
+  function downloadHistoryCSV(idx) {
+    const history = loadHistory();
+    const week = history[idx];
+    if (!week) return;
+    const csv = buildCSV(week);
+    const start = new Date(week.weekStart);
+    triggerDownload(csv, `kenay_semana_${start.toISOString().slice(0,10)}.csv`, "text/csv;charset=utf-8;");
+  }
+
+  function downloadImage() {
+    const done = countDone();
+    const level = getSemanalLevel(done);
+    const percent = Math.round((done / 35) * 100);
+    const start = new Date(currentWeek.weekStart);
+    const end = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 800;
+    canvas.height = 1000;
+    const ctx = canvas.getContext("2d");
+
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, "#FDF6E3");
+    grad.addColorStop(1, "#FAE8D4");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#6B4423";
+    ctx.fillRect(40, 40, 720, 130);
+    ctx.fillStyle = "#FDF6E3";
+    ctx.font = "bold 44px Nunito, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("🐾 Semana de Kenay 🐾", 400, 100);
+    ctx.font = "22px Nunito, sans-serif";
+    ctx.fillText(`${formatDate(start)} - ${formatDate(end)}`, 400, 140);
+
+    ctx.font = "100px sans-serif";
+    ctx.fillText(level.emoji, 400, 290);
+    ctx.fillStyle = "#6B4423";
+    ctx.font = "bold 36px Nunito, sans-serif";
+    ctx.fillText(level.name, 400, 340);
+
+    ctx.font = "bold 90px Nunito, sans-serif";
+    ctx.fillStyle = "#8B5A3C";
+    ctx.fillText(`${percent}%`, 400, 430);
+    ctx.font = "bold 26px Nunito, sans-serif";
+    ctx.fillStyle = "#6B4423";
+    ctx.fillText(`${done} de 35 comidas`, 400, 470);
+
+    ctx.textAlign = "left";
+    ctx.font = "bold 22px Nunito, sans-serif";
+    ctx.fillStyle = "#6B4423";
+    ctx.fillText("Progreso por día:", 90, 540);
+
+    for (let d = 0; d < 7; d++) {
+      const c = countDoneByDay(d);
+      const y = 570 + d * 45;
+      ctx.fillStyle = "#6B4423";
+      ctx.font = "bold 20px Nunito, sans-serif";
+      ctx.fillText(dayNames[d], 90, y + 22);
+
+      ctx.fillStyle = "#EAD5B7";
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(160, y, 500, 30, 15);
+      else ctx.rect(160, y, 500, 30);
+      ctx.fill();
+
+      const w = (c / 5) * 500;
+      const barGrad = ctx.createLinearGradient(160, y, 660, y);
+      barGrad.addColorStop(0, "#A8D5BA");
+      barGrad.addColorStop(1, "#6B4423");
+      ctx.fillStyle = barGrad;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(160, y, w, 30, 15);
+      else ctx.rect(160, y, w, 30);
+      ctx.fill();
+
+      ctx.fillStyle = "#4A3728";
+      ctx.font = "bold 20px Nunito, sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(`${c}/5`, 750, y + 22);
+      ctx.textAlign = "left";
+    }
+
+    ctx.textAlign = "center";
+    ctx.font = "italic 18px Nunito, sans-serif";
+    ctx.fillStyle = "#8B5A3C";
+    ctx.fillText("Hecho con 💛 para Kenay", 400, 960);
+
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kenay_semana_${start.toISOString().slice(0,10)}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  function showEndWeekPopup() {
+    const done = countDone();
+    const level = getSemanalLevel(done);
+    const percent = Math.round((done / 35) * 100);
+    const phraseList = phrases[level.key];
+    const phrase = phraseList[Math.floor(Math.random() * phraseList.length)];
+
+    document.getElementById("endEmoji").textContent = level.emoji;
+    document.getElementById("endLevel").textContent = level.name;
+    document.getElementById("endPercent").textContent = `${percent}%`;
+    document.getElementById("endFraction").textContent = `${done} de 35 comidas`;
+    document.getElementById("endPhrase").textContent = phrase;
+    document.getElementById("endWeekOverlay").classList.add("active");
+
+    if (level.key === "buena") launchConfetti();
+
+    setTimeout(() => {
+      const panel = document.getElementById("weeklyPanel");
+      const btn = document.getElementById("panelBtn");
+      if (!panel.classList.contains("active")) {
+        panel.classList.add("active");
+        btn.classList.add("active");
+        renderHistory();
+      }
+      renderMeals();
+    }, 100);
+  }
+
+  function closeEndWeek() {
+    document.getElementById("endWeekOverlay").classList.remove("active");
+  }
+
+  function launchConfetti() {
+    const colors = ["#F5B7B1","#A8D5BA","#F9E79F","#A9D0F5","#D7BDE2","#F5CBA7"];
+    for (let i = 0; i < 60; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDelay = Math.random() * 1.5 + "s";
+      c.style.animationDuration = (2 + Math.random() * 2) + "s";
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4500);
+    }
+  }
+
+  function openModal(id) {
+    const receta = recetas[id];
+    if (!receta) return;
+    const body = document.getElementById("modalBody");
+    body.innerHTML = `
+      <div class="modal-header">
+        <span class="modal-icon">${receta.icon}</span>
+        <h2>${receta.titulo}</h2>
+      </div>
+      <div class="modal-section">
+        <h3>⏱️ Tiempos de cocción</h3>
+        <ul>${receta.tiempos.map(t => `<li>${t}</li>`).join("")}</ul>
+      </div>
+      <div class="modal-section">
+        <h3>📏 Cantidades</h3>
+        <ul>${receta.cantidades.map(c => `<li>${c}</li>`).join("")}</ul>
+      </div>
+      <div class="modal-section">
+        <h3>👨‍🍳 Preparación paso a paso</h3>
+        <ol>${receta.pasos.map(p => `<li>${p}</li>`).join("")}</ol>
+      </div>
+    `;
+    document.getElementById("modalOverlay").classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal() {
+    document.getElementById("modalOverlay").classList.remove("active");
+    document.body.style.overflow = "auto";
+  }
+  function closeModalOutside(e) {
+    if (e.target.id === "modalOverlay") closeModal();
+  }
+
+  renderMeals();
+  updatePanel();
+
+  if (isWeekOver()) {
+    setTimeout(() => {
+      const panel = document.getElementById("weeklyPanel");
+      const btn = document.getElementById("panelBtn");
+      panel.classList.add("active");
+      btn.classList.add("active");
+      renderHistory();
+    }, 300);
+  }
+
+  setInterval(() => {
+    updatePanel();
+    renderMeals();
+  }, 60000);
+</script>
+
+</body>
+</html>
